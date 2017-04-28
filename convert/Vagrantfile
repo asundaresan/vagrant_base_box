@@ -1,0 +1,48 @@
+$script = <<SCRIPT
+echo "create user vagrant"
+adduser --disabled-password --gecos "" vagrant
+echo 'vagrant:vagrant' | chpasswd
+ls -al /home/
+echo "add sudo privilege to user vagrant"
+cp /etc/sudoers.d/90-cloud-init-users /etc/sudoers.d/admin
+chmod +w /etc/sudoers.d/admin
+ls -al /etc/sudoers.d/
+sed -i 's/ubuntu/vagrant/g' /etc/sudoers.d/admin
+cat /etc/sudoers.d/admin
+echo "enable ssh access for user vagrant"
+mkdir /home/vagrant/.ssh
+chown vagrant:vagrant /home/vagrant/.ssh
+cat /home/ubuntu/.ssh/authorized_keys > /home/vagrant/.ssh/authorized_keys
+chown vagrant:vagrant /home/vagrant/.ssh/authorized_keys
+su - vagrant -c "cat /home/vagrant/.ssh/authorized_keys"
+chmod 600 /home/vagrant/.ssh/authorized_keys
+ls -al /home/vagrant/.ssh
+chmod 700 /home/vagrant/.ssh
+ls -al /home/vagrant
+#### install ROS and python2.7
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+sudo apt update -y
+sudo apt-get install -y ros-kinetic-ros-base python2.7
+sudo rosdep init
+rosdep update
+#sudo apt full-upgrade -y
+sudo apt-get autoremove -y
+sudo systemctl disable apt-daily.service
+sudo systemctl disable apt-daily.timer
+#### zero out
+sudo dd if=/dev/zero of=/EMPTY bs=1M
+sudo rm -f /EMPTY
+cat /dev/null > ~/.bash_history && history -c && exit
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 4096
+    v.cpus = 4
+  end
+  config.ssh.username = "ubuntu"
+  config.vm.provision "shell", inline: $script
+end
+
