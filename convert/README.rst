@@ -8,9 +8,6 @@ This section explores how to customize an existing base box and create a new bas
   vagrant up --no-provision 
   vagrant provision 
   vagrant halt 
-  vagrant up --no-provision 
-  vagrant provision 
-  vagrant halt 
 
 Then package it. ::
 

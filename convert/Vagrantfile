@@ -1,3 +1,8 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+BOX = File.basename( File.dirname(__FILE__) )
+
 $script = <<SCRIPT
 echo "create user vagrant"
 adduser --disabled-password --gecos "" vagrant
@@ -26,7 +31,7 @@ sudo apt update -y
 sudo apt-get install -y ros-kinetic-ros-base python2.7
 sudo rosdep init
 rosdep update
-#sudo apt full-upgrade -y
+sudo apt upgrade -y
 sudo apt-get autoremove -y
 sudo systemctl disable apt-daily.service
 sudo systemctl disable apt-daily.timer
@@ -37,7 +42,7 @@ cat /dev/null > ~/.bash_history && history -c && exit
 SCRIPT
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/xenial64"
+  config.vm.box = "ubuntu/#{BOX}"
   config.vm.provider "virtualbox" do |v|
     v.memory = 4096
     v.cpus = 4
